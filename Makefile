@@ -2,7 +2,7 @@
 CPP = g++ 
 CPPFLAGS= --std=c++11 
 
-CPPLIBS = 
+CPPLIBS = -I/usr/local/Aria/include -L/usr/local/Aria/lib -lAria
 
 ##############################################################################
 
@@ -43,7 +43,7 @@ all: $(OBJ)
 										# Source code compiling
 
 $(ODIR)/simpleMotionCommands.o: $(SDIR)/simpleMotionCommands.cpp 
-	$(CPP) $(CPPFLAGS) -c $< -o $@
+	$(CPP) $(CPPFLAGS) $(CPPLIBS) -c $< -o $@
 
 			######################################################
 											# library compiling
