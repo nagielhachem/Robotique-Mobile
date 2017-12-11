@@ -153,8 +153,10 @@ def get_line(start, end):
     return points
 
 
-
-if __name__ == "__main__":
+def main(argv):
+    if len(argv) == 1:
+        print("Usage: Python3 {} map_file".format(argv[0]))
+        return -1
     maze, pos, obj = create_search_maze(sys.argv[1])
 
     f = open(sys.argv[1][:-4] + ".csv", 'w')
@@ -168,3 +170,6 @@ if __name__ == "__main__":
         buf += "\n"
     f.write(buf)
     f.close()
+
+if __name__ == "__main__":
+    main(sys.argv[:]) 
