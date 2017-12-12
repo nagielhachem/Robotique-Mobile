@@ -1,6 +1,9 @@
 #include "main.hh"
 #include "Aria.h"
 
+#define TOL 1
+#define PRE 300
+
 #define STEP_TIME 10
 #define STOP_TIME 2
 
@@ -31,20 +34,30 @@ bool is_visible(int x1, int y1, int x2, int y2, vector< vector<int> > map)
     int ystep = (y1 < y2) ? 1: -1;
     int error = (int) (dx / 2.0);
 
-    int y = y1;
-    for (int x = x1; x < x2 + 1; x++)
+    int size = PRE / 2;
+    for (int i = -size; i <= size; i += size)
     {
-        int c_x = (is_steep) ? y: x;
-        int c_y = (is_steep) ? x: y;
-        error  -= abs(dy);
-
-        if (map[(is_steep) ? y: x][(is_steep) ? x: y] != 0)
-            return false;
-
-        if (error < 0)
+        for (int j = -size; j <= size; j += size)
         {
-            y  += ystep;
-            error += dx;
+            int y = y1 + i;
+            for (int x = x1 + j; x < x2 + j + 1; x++)
+            {
+                int c_x = (is_steep) ? y: x;
+                int c_y = (is_steep) ? x: y;
+                error  -= abs(dy);
+
+                if (0 < x && 0 < y
+                 && ((is_steep) ? y: x) < map.size()
+                 && ((is_steep) ? x: y) < map[0].size()
+                 && map[(is_steep) ? y: x][(is_steep) ? x: y] != 0)
+                    return false;
+
+                if (error < 0)
+                {
+                    y  += ystep;
+                    error += dx;
+                }
+            }
         }
     }
 
@@ -115,27 +128,28 @@ int main(int argc, char *argv[])
     file.close();
 
     // Get nodes
-    int p = 1;
     vector< pair<int, int> > nodes = vector< pair<int, int> >();
     nodes.push_back(pair<int, int>(pos_x, pos_y));
     nodes.push_back(pair<int, int>(obj_x, obj_y));
-    for (int i = p; i < width - p; i++)
+    for (int i = TOL; i < width - TOL; i++)
     {
-        for (int j = p; j < height - p; j++)
+        for (int j = TOL; j < height - TOL; j++)
         {
-            int sum = map[i - 1][j - 1] + map[i - 1][j]
-                    + map[i - 1][j + 1] + map[i][j - 1]
-                    + map[i + 1][j - 1] + map[i][j + 1]
-                    + map[i + 1][j + 1] + map[i + 1][j];
-            if (sum == 1 && map[i][j] == 1)
+            int sum = map[i - TOL][j - TOL] + map[i - TOL][j]
+                    + map[i - TOL][j + TOL] + map[i][j - TOL]
+                    + map[i + TOL][j - TOL] + map[i][j + TOL]
+                    + map[i + TOL][j + TOL] + map[i + TOL][j];
+            if (sum == 1)
             {
-                nodes.push_back(pair<int, int>(i + p, j + p));
-                nodes.push_back(pair<int, int>(i + p, j - p));
-                nodes.push_back(pair<int, int>(i - p, j + p));
-                nodes.push_back(pair<int, int>(i - p, j - p));
+                nodes.push_back(pair<int, int>(i + PRE, j + PRE));
+                nodes.push_back(pair<int, int>(i + PRE, j - PRE));
+                nodes.push_back(pair<int, int>(i - PRE, j + PRE));
+                nodes.push_back(pair<int, int>(i - PRE, j - PRE));
             }
         }
     }
+
+    std::cout << nodes.size() << std::endl; // DEBUG
 
     // Get the graph
     graph g;
