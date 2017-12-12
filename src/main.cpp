@@ -96,9 +96,8 @@ int main(int argc, char *argv[])
         }
     }
 
-    // Get adjacences
-    vector< vector<float> > adjas = vector< vector<float> >();
-    adjas.resize(nodes.size(), vector<float>(nodes.size(), 0));
+    // Get the graph
+    graph g;
     for (int i = 0; i < nodes.size(); i++)
     {
         for (int j = i + 1; j < nodes.size(); j++)
@@ -108,7 +107,8 @@ int main(int argc, char *argv[])
                                     map)
                         * sqrt(pow(nodes[i].first  - nodes[j].first,  2)
                              + pow(nodes[i].second - nodes[j].second, 2));
-            adjas[i][j] = adja;
+            if (adja != 0)
+                add_edge(g, i, j, adja);
         }
     }
 
