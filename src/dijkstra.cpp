@@ -1,20 +1,3 @@
-#include <utility>
-#include <iostream>
-#include <vector>
-#include <set>
-#include <climits>
-#include <cfloat>
-#include <algorithm>
-
-struct edge
-{
-    int to;
-    float length;
-};
-
-using node = std::vector<edge>;
-using graph = std::vector<node>;
-
 void add_edge(graph& g, int start, int finish, float length)
 {
     if ((int)g.size() <= (std::max)(start, finish))
@@ -23,13 +6,6 @@ void add_edge(graph& g, int start, int finish, float length)
     g[finish].push_back( {start, length} );
 }
 
-using path = std::vector<int>;
-
-struct result
-{
-    float distance;
-    path p;
-};
 
 result dijkstra(const graph &graph, int source, int target)
 {
@@ -92,4 +68,3 @@ result dijkstra(const graph &graph, int source, int target)
     }
     return {FLT_MAX};
 }
-
