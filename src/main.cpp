@@ -13,25 +13,25 @@ bool is_visible(int x1, int y1, int x2, int y2, vector< vector<int> > map)
     int dx = x2 - x1;
     int dy = y2 - y1;
 
-    bool is_steep = abs(dy) - abs(dx);
+    bool is_steep = abs(dy) > abs(dx);
     if (is_steep)
     {
-        x1, y1 = y1, x1;
-        x2, y2 = y2, x2;
+        swap(x1, y1);
+        swap(x2, y2);
     }
 
     bool swapped = false;
     if (x1 > x2)
     {
-        x1, x2  = x2, x1;
-        y1, y2  = y2, y1;
+        swap(x1, x2);
+        swap(y1, y2);
         swapped = true;
     }
 
-    dx          = x2 - x1;
-    dy          = y2 - y1;
-    int ystep   = (y1 < y2) ? 1: -1;
-    float error = (int) (dx / 2.0);
+    dx        = x2 - x1;
+    dy        = y2 - y1;
+    int ystep = (y1 < y2) ? 1: -1;
+    int error = (int) (dx / 2.0);
 
     int y = y1;
     for (int x = x1; x < x2 + 1; x++)
@@ -40,7 +40,7 @@ bool is_visible(int x1, int y1, int x2, int y2, vector< vector<int> > map)
         int c_y = (is_steep) ? x: y;
         error  -= abs(dy);
 
-        if (map[(is_steep) ? c_y: c_x][(is_steep) ? c_x: c_y] != 0)
+        if (map[(is_steep) ? y: x][(is_steep) ? x: y] != 0)
             return false;
 
         if (error < 0)
@@ -108,9 +108,6 @@ int main(int argc, char *argv[])
                                     map)
                         * sqrt(pow(nodes[i].first  - nodes[j].first,  2)
                              + pow(nodes[i].second - nodes[j].second, 2));
-            std::cout << nodes[i].first << " " << nodes[i].second << std::endl; // DEBUG
-            std::cout << nodes[j].first << " " << nodes[j].second << std::endl; // DEBUG
-            std::cout << adja << std::endl; // DEBUG
             adjas[i][j] = adja;
         }
     }
