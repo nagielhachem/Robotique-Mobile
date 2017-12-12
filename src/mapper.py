@@ -129,7 +129,7 @@ def main(argv):
 
     f = open(sys.argv[1][:-4] + ".csv", 'w')
 
-    buf  = "%d %d\n" % (len(maze), len(maze[0]))
+    buf  = "%d %d\n" % (len(maze[0]), len(maze))
     buf += "%d %d\n" % pos
     buf += "%d %d\n" % obj
     for line in maze:
