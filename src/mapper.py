@@ -39,17 +39,10 @@ def get_obstacles(map_data, x_min, y_min):
 
 
 def get_borders(map_data):
-    X = [map_data['start_pos'][0], map_data['final_pos'][0]]
-    Y = [map_data['start_pos'][1], map_data['final_pos'][1]]
-    for line_coords in map_data['lines']:
-        X.extend([line_coords[0], line_coords[2]])
-    Y.extend([line_coords[1], line_coords[3]])
-
-    x_min, x_max = min(X), max(X)
-    y_min, y_max = min(Y), max(Y)
-
-    width = x_max - x_min + 10
-    height = y_max - y_min + 10
+    x_min, y_min = map_data['min']
+    x_max, y_max = map_data['max']
+    width        = x_max - x_min
+    height       = y_max - y_min
     return x_min, y_min, x_max, y_max, width, height
 
 
@@ -71,6 +64,10 @@ def get_map(map_path):
                 map_data['start_pos'] = (int(words[2]), int(words[3]))
             elif words[1] == 'Goal':
                 map_data['final_pos'] = (int(words[2]), int(words[3]))
+        elif words[0] == "MinPos:":
+            map_data['min'] = (int(words[1]), int(words[2]))
+        elif words[0] == "MaxPos:":
+            map_data['max'] = (int(words[1]), int(words[2]))
         elif words[0] == 'LINES':
             line_params = True
         elif words[0] == 'NumLines:':
@@ -127,6 +124,11 @@ def main(argv):
         return -1
     maze, pos, obj = create_maze(sys.argv[1])
 
+    print(len(maze))    # DEBUG
+    print(len(maze[0])) # DEBUG
+    print(pos)
+    print(obj)
+
     f = open(sys.argv[1][:-4] + ".csv", 'w')
 
     buf  = "%d %d\n" % (len(maze[0]), len(maze))
@@ -140,4 +142,4 @@ def main(argv):
     f.close()
 
 if __name__ == "__main__":
-    main(sys.argv[:]) 
+    main(sys.argv[:])

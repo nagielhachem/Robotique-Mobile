@@ -7,6 +7,7 @@
 #include <fstream>
 #include <iostream>
 #include <set>
+#include <string>
 #include <vector>
 #include <utility>
 
@@ -28,6 +29,17 @@ struct result
 {
     float distance;
     path p;
+};
+
+struct content
+{
+    int pos_x;
+    int pos_y;
+    int obj_x;
+    int obj_y;
+    int height;
+    int width;
+    vector< vector<int> > map;
 };
 
 

@@ -9,7 +9,7 @@
 
 
 
-bool is_visible(int x1, int y1, int x2, int y2, vector< vector<int> > map)
+bool is_visible(int x1, int y1, int x2, int y2, vector< vector<int> >& map, bool fill)
 {
     int dx = x2 - x1;
     int dy = y2 - y1;
@@ -34,10 +34,10 @@ bool is_visible(int x1, int y1, int x2, int y2, vector< vector<int> > map)
     int ystep = (y1 < y2) ? 1: -1;
     int error = (int) (dx / 2.0);
 
-    int size = PRE / 2;
-    for (int i = -size; i <= size; i += size)
+    int size = (fill) ? 1: PRE / 2;
+    for (int i = -size; i <= size; i += PRE / 2)
     {
-        for (int j = -size; j <= size; j += size)
+        for (int j = -size; j <= size; j += PRE / 2)
         {
             int y = y1 + i;
             for (int x = x1 + j; x < x2 + j + 1; x++)
@@ -47,14 +47,18 @@ bool is_visible(int x1, int y1, int x2, int y2, vector< vector<int> > map)
                 error  -= abs(dy);
 
                 if (0 < x && 0 < y
-                 && ((is_steep) ? y: x) < map.size()
-                 && ((is_steep) ? x: y) < map[0].size()
-                 && map[(is_steep) ? y: x][(is_steep) ? x: y] != 0)
-                    return false;
+                 && c_x < map.size()
+                 && c_y < map[0].size())
+                {
+                    if (fill)
+                        map[c_x][c_y] = 1;
+                    else if (map[c_x][c_y] != 0)
+                        return false;
+                }
 
                 if (error < 0)
                 {
-                    y  += ystep;
+                    y     += ystep;
                     error += dx;
                 }
             }
@@ -104,21 +108,85 @@ void go_to_node(ArRobot& robot, pair<int, int> pos, pair<int, int> obj)
 }
 
 
+void parse_data(char *path, content& data)
+{
+    // Get file
+    ifstream file;
+    file.open(path);
+    int min_x, min_y, max_x, max_y, nb_l;
+    string token;
+    file >> token;
+    while (token.compare("LINES") != 0)
+    {
+        if (token.compare("MinPos:") == 0)
+            file >> min_x >> min_y;
+        else if (token.compare("MaxPos:") == 0)
+            file >> max_x >> max_y;
+        else if (token.compare("NumLines:") == 0)
+            file >> nb_l;
+        else if (token.compare("Cairn:") == 0)
+        {
+            file >> token;
+            if (token.compare("Goal") == 0)
+                file >> data.obj_x >> data.obj_y;
+            else if (token.compare("RobotHome") == 0)
+                file >> data.pos_x >> data.pos_y;
+        }
+
+        file >> token;
+    }
+
+    data.obj_x -= min_x;
+    data.obj_y -= min_y;
+    data.pos_x -= min_x;
+    data.pos_y -= min_y;
+
+    int width   = max_x - min_x;
+    int height  = max_y - min_y;
+    data.width  = width;
+    data.height = height;
+
+    data.map = vector< vector<int> >();
+    data.map.resize(width, vector<int>(height, 0));
+
+    int x1, y1, x2, y2;
+    for (int i = 0; i < nb_l; i++)
+    {
+        file >> x1 >> y1 >> x2 >> y2;
+        is_visible(y1 - min_y, x1 - min_x,
+                   y2 - min_y, x2 - min_x,
+                   data.map, true);
+    }
+}
+
+
+
 int main(int argc, char *argv[])
 {
     if (argc != 2)
         return 1;
 
+    /*
     // Get file
     ifstream file;
     file.open(argv[1]);
+    */
 
     // Get metadata
     int width, height, pos_x, pos_y, obj_x, obj_y;
-    file >> height >> width;
-    file >> pos_y  >> pos_x;
-    file >> obj_y  >> obj_x;
+    content data;
+    parse_data(argv[1], data);
+    width  = data.width;
+    height = data.height;
+    pos_x  = data.pos_y;
+    pos_y  = data.pos_x;
+    obj_x  = data.obj_y;
+    obj_y  = data.obj_x;
+    vector< vector<int> > map = data.map;
 
+    std::cout << width << " " << height << std::endl; // DEBUG
+
+    /*
     // Get map
     vector< vector<int> > map;
     map.resize(width, vector<int>(height, 0));
@@ -126,6 +194,7 @@ int main(int argc, char *argv[])
         for (int j = 0; j < height; j++)
             file >> map[i][j];
     file.close();
+    */
 
     // Get nodes
     vector< pair<int, int> > nodes = vector< pair<int, int> >();
@@ -159,7 +228,7 @@ int main(int argc, char *argv[])
         {
             float adja = is_visible(nodes[i].first, nodes[i].second,
                                     nodes[j].first, nodes[j].second,
-                                    map)
+                                    map, false)
                         * sqrt(pow(nodes[i].first  - nodes[j].first,  2)
                              + pow(nodes[i].second - nodes[j].second, 2));
             if (adja != 0)

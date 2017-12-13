@@ -1,4 +1,6 @@
 2D-Map
+MinPos: -2700 0
+MaxPos: 500 3000
 LineMinPos: -1020 240
 LineMaxPos: -1020 2660
 NumLines: 1
